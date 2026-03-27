@@ -6,7 +6,7 @@ echo " Lyyncode Fully Auto Installer Panel, Wings & Egg "
 echo "=================================================="
 echo ""
 
-# 1. Pastikan expect terinstall untuk auto-answer
+# 1. Pastikan expect terinstall
 if ! command -v expect &> /dev/null; then
     echo "[+] Menginstall 'expect' agar proses 100% otomatis..."
     apt-get update -y && apt-get install -y expect
@@ -20,15 +20,14 @@ read -p "Masukkan Email Admin                             : " ADMIN_EMAIL
 read -p "Masukkan Username Admin                          : " ADMIN_USER
 read -p "Masukkan Password Admin                          : " ADMIN_PASS
 
-# Export variabel biar bisa dibaca aman sama sistem expect
 export PANEL_DOMAIN NODE_DOMAIN NODE_RAM ADMIN_EMAIL ADMIN_USER ADMIN_PASS
 
 echo ""
 echo "[+] Data aman. Proses instalasi berjalan OTOMATIS (lu bisa tinggal rebahan)."
 sleep 3
 
-# 3. Auto-Answer Pterodactyl Installer pakai Expect
-echo "[+] Menjalankan dan menjawab installer Pterodactyl secara otomatis..."
+# 3. Auto-Answer Pterodactyl Installer
+echo "[+] Menjalankan installer Pterodactyl..."
 
 expect << 'EOD'
 set timeout -1
@@ -36,8 +35,10 @@ spawn bash -c "bash <(curl -s https://pterodactyl-installer.se)"
 
 expect {
     -nocase "*Select an option*" { send "3\r"; exp_continue }
-    -nocase "*Database name*" { send "\r"; exp_continue }
-    -nocase "*Database username*" { send "\r"; exp_continue }
+    -nocase "*install MariaDB*" { send "y\r"; exp_continue }
+    -nocase "*Database Host*" { send "127.0.0.1\r"; exp_continue }
+    -nocase "*Database Name*" { send "panel\r"; exp_continue }
+    -nocase "*Database User*" { send "pterodactyl\r"; exp_continue }
     -nocase "*Password (press enter to*" { send "\r"; exp_continue }
     -nocase "*Select timezone*" { send "Asia/Jakarta\r"; exp_continue }
     -nocase "*Provide the email address*" { send "$env(ADMIN_EMAIL)\r"; exp_continue }
@@ -55,12 +56,12 @@ expect {
 }
 EOD
 
-# 4. Verifikasi dan Pindah ke direktori Pterodactyl (Jaring Pengaman)
+# 4. Verifikasi Direktori (Jaring Pengaman)
 cd /var/www/pterodactyl || { echo "[!] Error: Instalasi panel gagal."; exit 1; }
 
 echo "[+] Menyiapkan file Egg JSON..."
 
-# 5. Inject JSON Egg ke temporary file
+# 5. Inject JSON Egg
 cat << 'EOT' > /tmp/egg-nodejs.json
 {
     "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
@@ -198,7 +199,7 @@ try {
         'long' => 'Indonesia',
     ]);
 
-    // -- MEMBUAT NODE --
+    // -- MEMBUAT NODE (Format Database Valid) --
     $nodeService = app()->make(NodeCreationService::class);
     $nodeData = [
         'name' => 'Node-01',
@@ -209,9 +210,11 @@ try {
         'memory_overallocate' => 0,
         'disk' => $ram * 5,
         'disk_overallocate' => 0,
-        'daemonBase' => '/var/lib/pterodactyl/volumes',
-        'daemonSFTP' => 2022,
-        'daemonListen' => 8080,
+        'daemon_base' => '/var/lib/pterodactyl/volumes',
+        'daemon_sftp' => 2022,
+        'daemon_listen' => 8080,
+        'behind_proxy' => 0,
+        'maintenance_mode' => 0,
         'public' => 1,
         'upload_size' => 100,
     ];
@@ -223,6 +226,7 @@ try {
         $allocations[] = [
             'node_id' => $node->id,
             'ip' => $fqdn,
+            'ip_alias' => null,
             'port' => $i
         ];
     }
@@ -270,7 +274,6 @@ rm /tmp/egg-nodejs.json
 echo "[+] Konfigurasi berhasil diselesaikan."
 echo "[+] Mengaktifkan layanan Wings secara aman..."
 
-# Logic sehat buat restart Wings
 systemctl enable wings
 systemctl stop wings
 sleep 2
