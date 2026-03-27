@@ -55,7 +55,7 @@ expect {
 }
 EOD
 
-# 4. Verifikasi dan Pindah ke direktori Pterodactyl
+# 4. Verifikasi dan Pindah ke direktori Pterodactyl (Jaring Pengaman)
 cd /var/www/pterodactyl || { echo "[!] Error: Instalasi panel gagal."; exit 1; }
 
 echo "[+] Menyiapkan file Egg JSON..."
@@ -171,7 +171,7 @@ EOT
 
 echo "[+] Memulai injeksi Database (Node, Wings, Nest, dan Egg)..."
 
-# 6. Script PHP untuk konfigurasi sisa database
+# 6. Script PHP untuk bypass API dan konfigurasi database
 cat << 'EOF' > auto_ijo.php
 <?php
 require __DIR__ . '/vendor/autoload.php';
@@ -268,10 +268,13 @@ rm auto_ijo.php
 rm /tmp/egg-nodejs.json
 
 echo "[+] Konfigurasi berhasil diselesaikan."
-echo "[+] Mengaktifkan layanan Wings..."
+echo "[+] Mengaktifkan layanan Wings secara aman..."
 
-systemctl enable --now wings
-systemctl restart wings
+# Logic sehat buat restart Wings
+systemctl enable wings
+systemctl stop wings
+sleep 2
+systemctl start wings
 
 echo ""
 echo "=================================================="
