@@ -34,37 +34,50 @@ set timeout -1
 spawn bash -c "bash <(curl -s https://pterodactyl-installer.se)"
 
 expect {
+    # Pilihan menu (2 = Install both panel & wings)
     -nocase "*Input 0-*" { send "2\r"; exp_continue }
+    
+    # === KONFIGURASI DATABASE ===
     -nocase "*install MariaDB*" { send "y\r"; exp_continue }
     -nocase "*Database name*" { send "\r"; exp_continue }
     -nocase "*Database username*" { send "\r"; exp_continue }
     -nocase "*Password (press enter to*" { send "\r"; exp_continue }
-    -nocase "*Select timezone*" { send "Asia/Jakarta\r"; exp_continue }
     
     # === BAGIAN PANEL ===
+    -nocase "*Select timezone*" { send "Asia/Jakarta\r"; exp_continue }
+    -nocase "*Provide the email address that will be used*" { send "$env(ADMIN_EMAIL)\r"; exp_continue }
     -nocase "*Email address for the initial*" { send "$env(ADMIN_EMAIL)\r"; exp_continue }
     -nocase "*Username for the initial*" { send "$env(ADMIN_USER)\r"; exp_continue }
     -nocase "*First name for the initial*" { send "Admin\r"; exp_continue }
     -nocase "*Last name for the initial*" { send "Lyyncode\r"; exp_continue }
     -nocase "*Password for the initial*" { send "$env(ADMIN_PASS)\r"; exp_continue }
     -nocase "*FQDN of this panel*" { send "$env(PANEL_DOMAIN)\r"; exp_continue }
+    
+    # === PENGATURAN FIREWALL & SSL (Bisa beda-beda teksnya) ===
+    -nocase "*configure UFW*" { send "y\r"; exp_continue }
     -nocase "*configure the firewall*" { send "y\r"; exp_continue }
+    -nocase "*configure HTTPS*" { send "y\r"; exp_continue }
     -nocase "*HTTPS request is performed*" { send "y\r"; exp_continue }
     -nocase "*telemetry data*" { send "no\r"; exp_continue }
     
-    # === BAGIAN WINGS ===
+    # === TRANSISI KE WINGS ===
     -nocase "*proceed to wings*" { send "y\r"; exp_continue }
-    -nocase "*configure UFW*" { send "y\r"; exp_continue }
-    -nocase "*configure HTTPS*" { send "y\r"; exp_continue }
+    
+    # === BAGIAN WINGS ===
     -nocase "*FQDN of this node*" { send "$env(NODE_DOMAIN)\r"; exp_continue }
     -nocase "*Email address for Let's Encrypt*" { send "$env(ADMIN_EMAIL)\r"; exp_continue }
     -nocase "*automatically configure*" { send "n\r"; exp_continue }
     -nocase "*FQDN of your panel*" { send "\r"; exp_continue }
-    -nocase "*Proceed with Wings installation?*" { send "y\r"; exp_continue }
     
-    # === PERSETUJUAN UMUM ===
-    -nocase "*Do you agree?*" { send "y\r"; exp_continue }
+    # === KONFIRMASI JALAN ===
     -nocase "*Continue with installation*" { send "y\r"; exp_continue }
+    -nocase "*Proceed with installation*" { send "y\r"; exp_continue }
+    
+    # === JEBAKAN PROMPT LET'S ENCRYPT (CERTBOT) ===
+    -nocase "*(A)gree/(C)ancel*" { send "a\r"; exp_continue }
+    -nocase "*(Y)es/(N)o*" { send "y\r"; exp_continue }
+    -nocase "*Do you agree?*" { send "y\r"; exp_continue }
+    
     eof
 }
 EOD
