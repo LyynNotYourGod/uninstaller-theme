@@ -34,6 +34,7 @@ set timeout -1
 spawn bash -c "bash <(curl -s https://pterodactyl-installer.se)"
 
 expect {
+expect {
     -nocase "*Select an option*" { send "3\r"; exp_continue }
     -nocase "*install MariaDB*" { send "y\r"; exp_continue }
     -nocase "*Database Host*" { send "127.0.0.1\r"; exp_continue }
@@ -49,11 +50,13 @@ expect {
     -nocase "*Password for the initial*" { send "$env(ADMIN_PASS)\r"; exp_continue }
     -nocase "*FQDN of this panel*" { send "$env(PANEL_DOMAIN)\r"; exp_continue }
     -nocase "*configure the firewall*" { send "y\r"; exp_continue }
+    -nocase "*telemetry*" { send "no\r"; exp_continue }
     -nocase "*external access*" { send "y\r"; exp_continue }
     -nocase "*HTTPS request is performed*" { send "y\r"; exp_continue }
     -nocase "*Proceed with installation*" { send "y\r"; exp_continue }
     eof
 }
+
 EOD
 
 # 4. Verifikasi Direktori (Jaring Pengaman)
