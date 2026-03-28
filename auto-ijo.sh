@@ -23,7 +23,7 @@ read -p "Masukkan Password Admin                          : " ADMIN_PASS
 export PANEL_DOMAIN NODE_DOMAIN NODE_RAM ADMIN_EMAIL ADMIN_USER ADMIN_PASS
 
 echo ""
-echo "[+] Data aman. Proses instalasi berjalan OTOMATIS (lu bisa tinggal rebahan)."
+echo "[+] Data aman. Proses instalasi berjalan OTOMATIS"
 sleep 3
 
 # 3. Auto-Answer Pterodactyl Installer
@@ -34,37 +34,36 @@ set timeout -1
 spawn bash -c "bash <(curl -s https://pterodactyl-installer.se)"
 
 expect {
-expect {
-    -nocase "*Select an option*" { send "3\r"; exp_continue }
+    -nocase "*Input 0-*" { send "2\r"; exp_continue }
     -nocase "*install MariaDB*" { send "y\r"; exp_continue }
-    -nocase "*Database Host*" { send "127.0.0.1\r"; exp_continue }
-    -nocase "*Database Name*" { send "panel\r"; exp_continue }
-    -nocase "*Database User*" { send "pterodactyl\r"; exp_continue }
+    -nocase "*Database name*" { send "\r"; exp_continue }
+    -nocase "*Database username*" { send "\r"; exp_continue }
     -nocase "*Password (press enter to*" { send "\r"; exp_continue }
     -nocase "*Select timezone*" { send "Asia/Jakarta\r"; exp_continue }
-    -nocase "*Provide the email address*" { send "$env(ADMIN_EMAIL)\r"; exp_continue }
+    -nocase "*Provide the email address that will be used*" { send "$env(ADMIN_EMAIL)\r"; exp_continue }
     -nocase "*Email address for the initial*" { send "$env(ADMIN_EMAIL)\r"; exp_continue }
     -nocase "*Username for the initial*" { send "$env(ADMIN_USER)\r"; exp_continue }
     -nocase "*First name for the initial*" { send "Admin\r"; exp_continue }
     -nocase "*Last name for the initial*" { send "Lyyncode\r"; exp_continue }
     -nocase "*Password for the initial*" { send "$env(ADMIN_PASS)\r"; exp_continue }
     -nocase "*FQDN of this panel*" { send "$env(PANEL_DOMAIN)\r"; exp_continue }
-    -nocase "*configure the firewall*" { send "y\r"; exp_continue }
-    -nocase "*telemetry*" { send "no\r"; exp_continue }
-    -nocase "*external access*" { send "y\r"; exp_continue }
+    -nocase "*configure UFW*" { send "y\r"; exp_continue }
+    -nocase "*configure HTTPS*" { send "y\r"; exp_continue }
     -nocase "*HTTPS request is performed*" { send "y\r"; exp_continue }
-    -nocase "*Proceed with installation*" { send "y\r"; exp_continue }
+    -nocase "*Continue with installation*" { send "y\r"; exp_continue }
+    -nocase "*telemetry data*" { send "no\r"; exp_continue }
+    -nocase "*Do you agree?*" { send "y\r"; exp_continue }
+    -nocase "*proceed to wings*" { send "y\r"; exp_continue }
     eof
 }
-
 EOD
 
-# 4. Verifikasi Direktori (Jaring Pengaman)
-cd /var/www/pterodactyl || { echo "[!] Error: Instalasi panel gagal."; exit 1; }
+# 4. Verifikasi Direktori
+cd /var/www/pterodactyl || { echo "[!] Error: Instalasi panel gagal, direktori tidak ditemukan."; exit 1; }
 
 echo "[+] Menyiapkan file Egg JSON..."
 
-# 5. Inject JSON Egg
+# 5. Inject JSON Egg Node JS
 cat << 'EOT' > /tmp/egg-nodejs.json
 {
     "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
@@ -78,33 +77,33 @@ cat << 'EOT' > /tmp/egg-nodejs.json
     "description": null,
     "features": null,
     "docker_images": {
-        "ghcr.io/parkervcp/yolks:nodejs_24": "ghcr.io/parkervcp/yolks:nodejs_24",
-        "ghcr.io/parkervcp/yolks:nodejs_23": "ghcr.io/parkervcp/yolks:nodejs_23",
-        "ghcr.io/parkervcp/yolks:nodejs_22": "ghcr.io/parkervcp/yolks:nodejs_22",
-        "ghcr.io/parkervcp/yolks:nodejs_21": "ghcr.io/parkervcp/yolks:nodejs_21",
-        "ghcr.io/parkervcp/yolks:nodejs_20": "ghcr.io/parkervcp/yolks:nodejs_20",
-        "ghcr.io/parkervcp/yolks:nodejs_19": "ghcr.io/parkervcp/yolks:nodejs_19",
-        "ghcr.io/parkervcp/yolks:nodejs_18": "ghcr.io/parkervcp/yolks:nodejs_18",
-        "ghcr.io/parkervcp/yolks:nodejs_17": "ghcr.io/parkervcp/yolks:nodejs_17",
-        "ghcr.io/parkervcp/yolks:nodejs_16": "ghcr.io/parkervcp/yolks:nodejs_16",
-        "ghcr.io/parkervcp/yolks:nodejs_15": "ghcr.io/parkervcp/yolks:nodejs_15",
-        "ghcr.io/parkervcp/yolks:nodejs_14": "ghcr.io/parkervcp/yolks:nodejs_14",
-        "ghcr.io/parkervcp/yolks:nodejs_13": "ghcr.io/parkervcp/yolks:nodejs_13",
-        "ghcr.io/parkervcp/yolks:nodejs_12": "ghcr.io/parkervcp/yolks:nodejs_12",
-        "ghcr.io/parkervcp/yolks:nodejs_11": "ghcr.io/parkervcp/yolks:nodejs_11",
-        "ghcr.io/parkervcp/yolks:nodejs_10": "ghcr.io/parkervcp/yolks:nodejs_10",
-        "ghcr.io/parkervcp/yolks:nodejs_9": "ghcr.io/parkervcp/yolks:nodejs_9",
-        "ghcr.io/parkervcp/yolks:nodejs_8": "ghcr.io/parkervcp/yolks:nodejs_8",
-        "ghcr.io/parkervcp/yolks:nodejs_7": "ghcr.io/parkervcp/yolks:nodejs_7",
-        "ghcr.io/parkervcp/yolks:nodejs_6": "ghcr.io/parkervcp/yolks:nodejs_6",
-        "ghcr.io/parkervcp/yolks:nodejs_5": "ghcr.io/parkervcp/yolks:nodejs_5",
-        "ghcr.io/parkervcp/yolks:nodejs_4": "ghcr.io/parkervcp/yolks:nodejs_4",
-        "ghcr.io/parkervcp/yolks:nodejs_3": "ghcr.io/parkervcp/yolks:nodejs_3",
-        "ghcr.io/parkervcp/yolks:nodejs_2": "ghcr.io/parkervcp/yolks:nodejs_2",
-        "ghcr.io/parkervcp/yolks:nodejs_1": "ghcr.io/parkervcp/yolks:nodejs_1"
+        "ghcr.io\/parkervcp\/yolks:nodejs_24": "ghcr.io\/parkervcp\/yolks:nodejs_24",
+        "ghcr.io\/parkervcp\/yolks:nodejs_23": "ghcr.io\/parkervcp\/yolks:nodejs_23",
+        "ghcr.io\/parkervcp\/yolks:nodejs_22": "ghcr.io\/parkervcp\/yolks:nodejs_22",
+        "ghcr.io\/parkervcp\/yolks:nodejs_21": "ghcr.io\/parkervcp\/yolks:nodejs_21",
+        "ghcr.io\/parkervcp\/yolks:nodejs_20": "ghcr.io\/parkervcp\/yolks:nodejs_20",
+        "ghcr.io\/parkervcp\/yolks:nodejs_19": "ghcr.io\/parkervcp\/yolks:nodejs_19",
+        "ghcr.io\/parkervcp\/yolks:nodejs_18": "ghcr.io\/parkervcp\/yolks:nodejs_18",
+        "ghcr.io\/parkervcp\/yolks:nodejs_17": "ghcr.io\/parkervcp\/yolks:nodejs_17",
+        "ghcr.io\/parkervcp\/yolks:nodejs_16": "ghcr.io\/parkervcp\/yolks:nodejs_16",
+        "ghcr.io\/parkervcp\/yolks:nodejs_15": "ghcr.io\/parkervcp\/yolks:nodejs_15",
+        "ghcr.io\/parkervcp\/yolks:nodejs_14": "ghcr.io\/parkervcp\/yolks:nodejs_14",
+        "ghcr.io\/parkervcp\/yolks:nodejs_13": "ghcr.io\/parkervcp\/yolks:nodejs_13",
+        "ghcr.io\/parkervcp\/yolks:nodejs_12": "ghcr.io\/parkervcp\/yolks:nodejs_12",
+        "ghcr.io\/parkervcp\/yolks:nodejs_11": "ghcr.io\/parkervcp\/yolks:nodejs_11",
+        "ghcr.io\/parkervcp\/yolks:nodejs_10": "ghcr.io\/parkervcp\/yolks:nodejs_10",
+        "ghcr.io\/parkervcp\/yolks:nodejs_9": "ghcr.io\/parkervcp\/yolks:nodejs_9",
+        "ghcr.io\/parkervcp\/yolks:nodejs_8": "ghcr.io\/parkervcp\/yolks:nodejs_8",
+        "ghcr.io\/parkervcp\/yolks:nodejs_7": "ghcr.io\/parkervcp\/yolks:nodejs_7",
+        "ghcr.io\/parkervcp\/yolks:nodejs_6": "ghcr.io\/parkervcp\/yolks:nodejs_6",
+        "ghcr.io\/parkervcp\/yolks:nodejs_5": "ghcr.io\/parkervcp\/yolks:nodejs_5",
+        "ghcr.io\/parkervcp\/yolks:nodejs_4": "ghcr.io\/parkervcp\/yolks:nodejs_4",
+        "ghcr.io\/parkervcp\/yolks:nodejs_3": "ghcr.io\/parkervcp\/yolks:nodejs_3",
+        "ghcr.io\/parkervcp\/yolks:nodejs_2": "ghcr.io\/parkervcp\/yolks:nodejs_2",
+        "ghcr.io\/parkervcp\/yolks:nodejs_1": "ghcr.io\/parkervcp\/yolks:nodejs_1"
     },
     "file_denylist": [],
-    "startup": "if [[ -d .git ]] && [[ {{AUTO_UPDATE}} == \"1\" ]]; then git pull; fi; if [[ ! -z ${NODE_PACKAGES} ]]; then /usr/local/bin/npm install ${NODE_PACKAGES}; fi; if [[ ! -z ${UNNODE_PACKAGES} ]]; then /usr/local/bin/npm uninstall ${UNNODE_PACKAGES}; fi; if [ -f /home/container/package.json ]; then /usr/local/bin/npm install; fi;  if [[ ! -z ${CUSTOM_ENVIRONMENT_VARIABLES} ]]; then      vars=$(echo ${CUSTOM_ENVIRONMENT_VARIABLES} | tr \";\" \"\\n\");      for line in $vars;     do export $line;     done fi;  /usr/local/bin/${CMD_RUN};",
+    "startup": "if [[ -d .git ]] && [[ {{AUTO_UPDATE}} == \"1\" ]]; then git pull; fi; if [[ ! -z ${NODE_PACKAGES} ]]; then \/usr\/local\/bin\/npm install ${NODE_PACKAGES}; fi; if [[ ! -z ${UNNODE_PACKAGES} ]]; then \/usr\/local\/bin\/npm uninstall ${UNNODE_PACKAGES}; fi; if [ -f \/home\/container\/package.json ]; then \/usr\/local\/bin\/npm install; fi;  if [[ ! -z ${CUSTOM_ENVIRONMENT_VARIABLES} ]]; then      vars=$(echo ${CUSTOM_ENVIRONMENT_VARIABLES} | tr \";\" \"\\n\");      for line in $vars;     do export $line;     done fi;  \/usr\/local\/bin\/${CMD_RUN};",
     "config": {
         "files": "{}",
         "startup": "{\r\n    \"done\": \"running\"\r\n}",
@@ -113,7 +112,7 @@ cat << 'EOT' > /tmp/egg-nodejs.json
     },
     "scripts": {
         "installation": {
-            "script": "#!/bin/bash\r\n# NodeJS App Installation Script\r\n#\r\n# Server Files: /mnt/server\r\napt update\r\napt install -y git curl jq file unzip make gcc g++ python python-dev libtool\r\n\r\nmkdir -p /mnt/server\r\ncd /mnt/server\r\n\r\nif [ \"${USER_UPLOAD}\" == \"true\" ] || [ \"${USER_UPLOAD}\" == \"1\" ]; then\r\n    echo -e \"assuming user knows what they are doing have a good day.\"\r\n    exit 0\r\nfi\r\n\r\n## add git ending if it's not on the address\r\nif [[ ${GIT_ADDRESS} != *.git ]]; then\r\n    GIT_ADDRESS=${GIT_ADDRESS}.git\r\nfi\r\n\r\nif [ -z \"${USERNAME}\" ] && [ -z \"${ACCESS_TOKEN}\" ]; then\r\n    echo -e \"using anon api call\"\r\nelse\r\n    GIT_ADDRESS=\"https://${USERNAME}:${ACCESS_TOKEN}@$(echo -e ${GIT_ADDRESS} | cut -d/ -f3-)\"\r\nfi\r\n\r\n## pull git js repo\r\nif [ \"$(ls -A /mnt/server)\" ]; then\r\n    echo -e \"/mnt/server directory is not empty.\"\r\n    if [ -d .git ]; then\r\n        echo -e \".git directory exists\"\r\n        if [ -f .git/config ]; then\r\n            echo -e \"loading info from git config\"\r\n            ORIGIN=$(git config --get remote.origin.url)\r\n        else\r\n            echo -e \"files found with no git config\"\r\n            echo -e \"closing out without touching things to not break anything\"\r\n            exit 10\r\n        fi\r\n    fi\r\n\r\n    if [ \"${ORIGIN}\" == \"${GIT_ADDRESS}\" ]; then\r\n        echo \"pulling latest from github\"\r\n        git pull\r\n    fi\r\nelse\r\n    echo -e \"/mnt/server is empty.\\ncloning files into repo\"\r\n    if [ -z ${BRANCH} ]; then\r\n        echo -e \"cloning default branch\"\r\n        git clone ${GIT_ADDRESS} .\r\n    else\r\n        echo -e \"cloning ${BRANCH}'\"\r\n        git clone --single-branch --branch ${BRANCH} ${GIT_ADDRESS} .\r\n    fi\r\n\r\nfi\r\n\r\necho \"Installing nodejs packages\"\r\nif [[ ! -z ${NODE_PACKAGES} ]]; then\r\n    /usr/local/bin/npm install ${NODE_PACKAGES}\r\nfi\r\n\r\nif [ -f /mnt/server/package.json ]; then\r\n    /usr/local/bin/npm install --production\r\nfi\r\n\r\necho -e \"install complete\"\r\nexit 0",
+            "script": "#!\/bin\/bash\r\n# NodeJS App Installation Script\r\n#\r\n# Server Files: \/mnt\/server\r\napt update\r\napt install -y git curl jq file unzip make gcc g++ python python-dev libtool\r\n\r\nmkdir -p \/mnt\/server\r\ncd \/mnt\/server\r\n\r\nif [ \"${USER_UPLOAD}\" == \"true\" ] || [ \"${USER_UPLOAD}\" == \"1\" ]; then\r\n    echo -e \"assuming user knows what they are doing have a good day.\"\r\n    exit 0\r\nfi\r\n\r\n## add git ending if it's not on the address\r\nif [[ ${GIT_ADDRESS} != *.git ]]; then\r\n    GIT_ADDRESS=${GIT_ADDRESS}.git\r\nfi\r\n\r\nif [ -z \"${USERNAME}\" ] && [ -z \"${ACCESS_TOKEN}\" ]; then\r\n    echo -e \"using anon api call\"\r\nelse\r\n    GIT_ADDRESS=\"https:\/\/${USERNAME}:${ACCESS_TOKEN}@$(echo -e ${GIT_ADDRESS} | cut -d\/ -f3-)\"\r\nfi\r\n\r\n## pull git js repo\r\nif [ \"$(ls -A \/mnt\/server)\" ]; then\r\n    echo -e \"\/mnt\/server directory is not empty.\"\r\n    if [ -d .git ]; then\r\n        echo -e \".git directory exists\"\r\n        if [ -f .git\/config ]; then\r\n            echo -e \"loading info from git config\"\r\n            ORIGIN=$(git config --get remote.origin.url)\r\n        else\r\n            echo -e \"files found with no git config\"\r\n            echo -e \"closing out without touching things to not break anything\"\r\n            exit 10\r\n        fi\r\n    fi\r\n\r\n    if [ \"${ORIGIN}\" == \"${GIT_ADDRESS}\" ]; then\r\n        echo \"pulling latest from github\"\r\n        git pull\r\n    fi\r\nelse\r\n    echo -e \"\/mnt\/server is empty.\\ncloning files into repo\"\r\n    if [ -z ${BRANCH} ]; then\r\n        echo -e \"cloning default branch\"\r\n        git clone ${GIT_ADDRESS} .\r\n    else\r\n        echo -e \"cloning ${BRANCH}'\"\r\n        git clone --single-branch --branch ${BRANCH} ${GIT_ADDRESS} .\r\n    fi\r\n\r\nfi\r\n\r\necho \"Installing nodejs packages\"\r\nif [[ ! -z ${NODE_PACKAGES} ]]; then\r\n    \/usr\/local\/bin\/npm install ${NODE_PACKAGES}\r\nfi\r\n\r\nif [ -f \/mnt\/server\/package.json ]; then\r\n    \/usr\/local\/bin\/npm install --production\r\nfi\r\n\r\necho -e \"install complete\"\r\nexit 0",
             "container": "node:14-buster-slim",
             "entrypoint": "bash"
         }
@@ -121,7 +120,7 @@ cat << 'EOT' > /tmp/egg-nodejs.json
     "variables": [
         {
             "name": "Git Repo Address",
-            "description": "GitHub Repo to clone\r\n\r\nI.E. https://github.com/user_name/repo_name",
+            "description": "GitHub Repo to clone\r\n\r\nI.E. https:\/\/github.com\/user_name\/repo_name",
             "env_variable": "GIT_ADDRESS",
             "default_value": "",
             "user_viewable": true,
@@ -151,7 +150,7 @@ cat << 'EOT' > /tmp/egg-nodejs.json
         },
         {
             "name": "Git Access Token",
-            "description": "Password to use with git.",
+            "description": "Password to use with git.\r\n\r\nIt's best practice to use a Personal Access Token.\r\nhttps:\/\/github.com\/settings\/tokens\r\nhttps:\/\/gitlab.com\/-\/profile\/personal_access_tokens",
             "env_variable": "ACCESS_TOKEN",
             "default_value": "",
             "user_viewable": true,
@@ -173,9 +172,9 @@ cat << 'EOT' > /tmp/egg-nodejs.json
 }
 EOT
 
-echo "[+] Memulai injeksi Database (Node, Wings, Nest, dan Egg)..."
+echo "[+] Memulai injeksi Database (Node, Allocation, Config Wings, Nest, dan Egg)..."
 
-# 6. Script PHP untuk bypass API dan konfigurasi database
+# 6. Script PHP untuk bypass API dan injeksi database sesuai skema official
 cat << 'EOF' > auto_ijo.php
 <?php
 require __DIR__ . '/vendor/autoload.php';
@@ -196,13 +195,11 @@ try {
     $fqdn = getenv('NODE_DOMAIN');
     $ram = (int)getenv('NODE_RAM');
 
-    // -- MEMBUAT LOCATION --
     $location = Location::firstOrCreate([
         'short' => 'ID',
         'long' => 'Indonesia',
     ]);
 
-    // -- MEMBUAT NODE (Format Database Valid) --
     $nodeService = app()->make(NodeCreationService::class);
     $nodeData = [
         'name' => 'Node-01',
@@ -223,7 +220,6 @@ try {
     ];
     $node = $nodeService->handle($nodeData);
 
-    // -- MEMBUAT ALLOCATION (PORT 7777 - 7877) --
     $allocations = [];
     for ($i = 7777; $i <= 7877; $i++) {
         $allocations[] = [
@@ -235,7 +231,6 @@ try {
     }
     Allocation::insert($allocations);
 
-    // -- GENERATE CONFIG.YML UNTUK WINGS --
     $configArray = app()->make(NodeConfigurationService::class)->handle($node);
     $yaml = Yaml::dump($configArray, 4, 2);
     if (!is_dir('/etc/pterodactyl')) {
@@ -243,14 +238,12 @@ try {
     }
     file_put_contents('/etc/pterodactyl/config.yml', $yaml);
 
-    // -- MEMBUAT NEST --
     $nest = Nest::firstOrCreate([
         'author' => getenv('ADMIN_EMAIL'),
         'name' => 'Lyyncode Bots',
         'description' => 'Custom Nest untuk layanan Lyyncode'
     ]);
 
-    // -- IMPORT EGG DAN UBAH NAMA --
     $eggJsonString = file_get_contents('/tmp/egg-nodejs.json');
     $eggData = json_decode($eggJsonString, true);
     
@@ -274,7 +267,7 @@ php auto_ijo.php
 rm auto_ijo.php
 rm /tmp/egg-nodejs.json
 
-echo "[+] Konfigurasi berhasil diselesaikan."
+echo "[+] Konfigurasi database berhasil diselesaikan."
 echo "[+] Mengaktifkan layanan Wings secara aman..."
 
 systemctl enable wings
@@ -286,7 +279,6 @@ echo ""
 echo "=================================================="
 echo " Sukses install panel + node auto ijo "
 echo "=================================================="
-echo " Detail Login Panel:"
 echo " URL Panel : $PANEL_DOMAIN"
 echo " Username  : $ADMIN_USER"
 echo " Password  : $ADMIN_PASS"
