@@ -60,6 +60,9 @@ expect {
     -nocase "*HTTPS request is performed*" { send "y\r"; exp_continue }
     -nocase "*telemetry data*" { send "no\r"; exp_continue }
     
+    # === JEBAKAN PROMPT CLOUDFLARE / IP MISMATCH ===
+    -nocase "*Proceed anyways*" { send "y\r"; exp_continue }
+    
     # === TRANSISI KE WINGS ===
     -nocase "*proceed to wings*" { send "y\r"; exp_continue }
     
