@@ -68,10 +68,11 @@ expect {
     
     # === BAGIAN WINGS ===
     -nocase "*FQDN of this node*" { send "$env(NODE_DOMAIN)\r"; exp_continue }
+    -nocase "*Set the FQDN to use for Let's Encrypt*" { send "$env(NODE_DOMAIN)\r"; exp_continue }
     -nocase "*Email address for Let's Encrypt*" { send "$env(ADMIN_EMAIL)\r"; exp_continue }
     -nocase "*automatically configure*" { send "n\r"; exp_continue }
     -nocase "*FQDN of your panel*" { send "\r"; exp_continue }
-    
+
     # === KONFIRMASI JALAN ===
     -nocase "*Continue with installation*" { send "y\r"; exp_continue }
     -nocase "*Proceed with installation*" { send "y\r"; exp_continue }
