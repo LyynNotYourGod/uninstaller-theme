@@ -62,6 +62,7 @@ expect {
     
     # === JEBAKAN PROMPT CLOUDFLARE / IP MISMATCH ===
     -nocase "*Proceed anyways*" { send "y\r"; exp_continue }
+    -nocase "*Initial configuration completed. Continue with installation?*" { send "y\r"; exp_continue }
     
     # === TRANSISI KE WINGS ===
     -nocase "*proceed to wings*" { send "y\r"; exp_continue }
